@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Push-Up Circuit</title>
+<style>
+  :root{
+    --ink:#1b2430;
+    --ink-2:#242f3d;
+    --paper:#edede3;
+    --paper-dim:#c7c7ba;
+    --stamp:#f2c744;
+    --rest:#8aa1a8;
+    --rest-bg:#26333c;
+    --line:#3a4756;
+    --good:#5fbf7a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+    min-height:100vh;
+    padding:28px 16px 60px;
+  }
+  .wrap{max-width:600px;margin:0 auto;}
+
+  .head{
+    background:var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:22px 24px;
+    margin-bottom:18px;
+  }
+  h1{font-size:28px;letter-spacing:-0.5px;margin:0 0 4px;font-weight:800;}
+  .subtitle{color:var(--paper-dim);font-size:14px;margin:0 0 16px;line-height:1.5;}
+  .stats-row{display:flex;gap:14px;flex-wrap:wrap;}
+  .stat{background:var(--ink);border:1px solid var(--line);border-radius:4px;padding:10px 14px;min-width:96px;}
+  .stat .num{font-size:22px;font-weight:800;color:var(--stamp);line-height:1.1;}
+  .stat .label{font-size:11.5px;color:var(--paper-dim);margin-top:2px;}
+
+  .setup{
+    background:var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:16px 20px;
+    margin-bottom:18px;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .setup label{color:var(--paper-dim);}
+  .setup input[type=date]{
+    background:var(--ink);border:1px solid var(--line);color:var(--paper);
+    padding:6px 10px;border-radius:3px;font-size:14px;
+  }
+  .setup button{
+    background:var(--stamp);color:var(--ink);border:none;
+    padding:7px 14px;border-radius:3px;font-weight:700;font-size:13px;cursor:pointer;
+  }
+  .setup button:hover{filter:brightness(1.08);}
+  .setup .hint{width:100%;color:var(--paper-dim);font-size:12.5px;}
+
+  .music-box{
+    background:var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:16px 20px 18px;
+    margin-bottom:18px;
+  }
+  .music-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .music-title{font-weight:800;font-size:15px;}
+  .music-input-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .music-input-row input[type=text]{
+    flex:1 1 220px;background:var(--ink);border:1px solid var(--line);color:var(--paper);
+    padding:8px 10px;border-radius:3px;font-size:13.5px;
+  }
+  .music-input-row button{
+    background:var(--stamp);color:var(--ink);border:none;padding:8px 16px;border-radius:3px;
+    font-weight:700;font-size:13px;cursor:pointer;
+  }
+  .music-input-row button:hover{filter:brightness(1.08);}
+  .music-hint{color:var(--paper-dim);font-size:12px;margin-top:6px;}
+  #youtubePlayerWrap iframe{border-radius:8px;width:100%;display:block;border:none;}
+
+  .weeklabel{font-size:13px;color:var(--paper-dim);margin:4px 2px 10px;}
+
+  .day{
+    background:var(--ink-2);border:1px solid var(--line);border-radius:4px;
+    margin-bottom:10px;overflow:hidden;transition:border-color .15s ease;
+  }
+  .day.today{border-color:var(--stamp);}
+  .day.rest{background:var(--rest-bg);}
+
+  .day-top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px;border-bottom:1px dashed var(--line);gap:10px;flex-wrap:wrap;
+  }
+  .day.rest .day-top{border-bottom-color:transparent;}
+  .dow-label{font-weight:800;font-size:15px;letter-spacing:0.3px;}
+  .day.today .dow-label{color:var(--stamp);}
+  .dow-label .date{font-weight:600;font-size:12px;color:var(--paper-dim);margin-left:8px;}
+
+  .stampbtn{
+    flex:0 0 auto;width:38px;height:38px;border-radius:50%;
+    border:2px solid var(--line);background:transparent;color:var(--paper-dim);
+    font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .stampbtn.on{border-color:var(--rest);background:var(--rest);color:var(--ink);}
+
+  .sessions-block{padding:10px 16px 16px;}
+  .session-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 0;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    gap:10px;flex-wrap:wrap;
+  }
+  .session-row:last-child{border-bottom:none;}
+  .session-label{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
+  .session-check{
+    width:20px;height:20px;border-radius:50%;border:2px solid var(--line);
+    display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink);
+    flex:0 0 auto;
+  }
+  .session-check.on{background:var(--good);border-color:var(--good);}
+  .session-sub{font-size:12px;color:var(--paper-dim);}
+  .startbtn{
+    background:var(--stamp);color:var(--ink);border:none;
+    padding:8px 16px;border-radius:20px;font-weight:800;font-size:13px;cursor:pointer;
+  }
+  .startbtn:hover{filter:brightness(1.08);}
+  .startbtn:disabled{background:var(--line);color:var(--paper-dim);cursor:default;}
+  .daycomplete-msg{color:var(--good);font-size:13px;font-weight:700;padding-top:6px;}
+  .evening-reminder{color:var(--stamp);font-size:12.5px;padding-top:4px;}
+
+  .rest-detail{padding:12px 16px 16px;color:var(--rest);font-size:14px;}
+
+  .footer-note{text-align:center;color:var(--paper-dim);font-size:12.5px;margin-top:26px;line-height:1.6;}
+  .loading{text-align:center;color:var(--paper-dim);padding:40px 0;}
+
+  /* Full-screen exercise player */
+  .overlay{
+    position:fixed;inset:0;background:var(--ink);z-index:1000;
+    display:none;flex-direction:column;
+  }
+  .overlay.active{display:flex;}
+  .overlay-top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 20px;
+  }
+  .overlay-close{
+    background:none;border:1px solid var(--line);color:var(--paper-dim);
+    width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;
+  }
+  .overlay-progress{
+    display:flex;gap:6px;padding:0 20px 10px;
+  }
+  .dot{width:100%;height:5px;border-radius:3px;background:var(--line);}
+  .dot.filled{background:var(--stamp);}
+
+  .overlay-body{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:20px;text-align:center;
+  }
+  .overlay-session-tag{
+    color:var(--paper-dim);font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+  }
+  .overlay-exname{font-size:34px;font-weight:800;margin-bottom:18px;line-height:1.15;}
+  .overlay-metrics{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:26px;}
+  .metric{
+    background:var(--ink-2);border:1px solid var(--line);border-radius:8px;
+    padding:14px 20px;min-width:110px;
+  }
+  .metric .val{font-size:24px;font-weight:800;color:var(--stamp);}
+  .metric .lbl{font-size:11.5px;color:var(--paper-dim);margin-top:2px;}
+  .overlay-note{color:var(--paper-dim);font-size:13px;max-width:340px;margin-bottom:10px;}
+
+  .overlay-praise{
+    display:none;
+    color:var(--good);font-size:17px;font-weight:700;margin-bottom:18px;
+  }
+  .overlay-praise.show{display:block;}
+
+  .overlay-bottom{padding:20px;display:flex;justify-content:center;}
+  .bigbtn{
+    background:var(--stamp);color:var(--ink);border:none;
+    padding:16px 40px;border-radius:30px;font-weight:800;font-size:16px;cursor:pointer;
+    width:100%;max-width:340px;
+  }
+  .bigbtn:hover{filter:brightness(1.08);}
+
+  /* Completion screen */
+  .complete-emoji{font-size:52px;margin-bottom:12px;}
+  .complete-title{font-size:26px;font-weight:800;margin-bottom:8px;}
+  .complete-sub{color:var(--paper-dim);font-size:14px;margin-bottom:22px;max-width:340px;}
+  .complete-reminder{
+    background:var(--ink-2);border:1px solid var(--stamp);border-radius:8px;
+    padding:12px 18px;color:var(--stamp);font-size:13.5px;margin-bottom:22px;max-width:340px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <h1>Daily Push-Up Circuit</h1>
+    <p class="subtitle">Each session opens with a jumping-jacks warm-up, four push-up variations, and a plank cool-down — morning and evening, one rest day a week. Mostly push-ups, with just enough else to warm up and cool down properly. Reps step up a little each week. Starting point: 15–20 clean push-ups.</p>
+    <div class="stats-row">
+      <div class="stat"><div class="num" id="statDone">0</div><div class="label">days completed</div></div>
+      <div class="stat"><div class="num" id="statStreak">0</div><div class="label">current streak</div></div>
+      <div class="stat"><div class="num" id="statWeek">–</div><div class="label">this is week</div></div>
+    </div>
+  </div>
+
+  <div class="setup">
+    <label for="startDate">Plan start date:</label>
+    <input type="date" id="startDate">
+    <button id="saveStart">Set</button>
+    <span class="hint">Saved automatically on this device — reps step up week to week.</span>
+  </div>
+
+  <div class="music-box">
+    <div class="music-head"><span class="music-title">Your music</span></div>
+    <div class="music-input-row">
+      <input type="text" id="youtubeUrl" placeholder="Paste a YouTube video or playlist link…">
+      <button id="loadYoutube">Load</button>
+    </div>
+    <div id="youtubePlayerWrap"></div>
+    <div class="hint music-hint">Plays full tracks, no login needed. Comes preloaded with a copyright-free workout mix — paste your own YouTube video or playlist link (right-click → Copy link) to swap it.</div>
+  </div>
+
+  <div class="weeklabel" id="weekLabel"></div>
+  <div id="days" class="loading">Loading your week…</div>
+
+  <div class="footer-note" id="footerNote" style="cursor:default;">Form over speed. If a variation is too hard, drop to your knees for that set rather than skipping it entirely.</div>
+</div>
+
+<!-- Full-screen exercise player -->
+<div class="overlay" id="exerciseOverlay">
+  <div class="overlay-top">
+    <span class="overlay-session-tag" id="ovSessionTag">Morning session</span>
+    <button class="overlay-close" id="ovClose">✕</button>
+  </div>
+  <div class="overlay-progress" id="ovProgress"></div>
+  <div class="overlay-body">
+    <div class="overlay-praise" id="ovPraise">Nice work! ✅</div>
+    <div class="overlay-exname" id="ovExName">Standard push-ups</div>
+    <div class="overlay-metrics">
+      <div class="metric"><div class="val" id="ovReps">12</div><div class="lbl" id="ovRepsLabel">reps</div></div>
+      <div class="metric"><div class="val" id="ovCal">6</div><div class="lbl">est. kcal</div></div>
+    </div>
+    <div class="overlay-note">Estimated calories are a rough average for a moderate-effort set — actual burn varies with your weight and pace.</div>
+  </div>
+  <div class="overlay-bottom">
+    <button class="bigbtn" id="ovActionBtn">Mark exercise done</button>
+  </div>
+</div>
+
+<!-- Session complete screen -->
+<div class="overlay" id="completeOverlay">
+  <div class="overlay-top">
+    <span></span>
+    <button class="overlay-close" id="compClose">✕</button>
+  </div>
+  <div class="overlay-body">
+    <div class="complete-emoji">🎉</div>
+    <div class="complete-title" id="compTitle">Good job!</div>
+    <div class="complete-sub" id="compSub">You just finished your morning session.</div>
+    <div class="metric" style="margin-bottom:22px;"><div class="val" id="compCal">30</div><div class="lbl">kcal burned this session</div></div>
+    <div class="complete-reminder" id="compReminder" style="display:none;">⏰ Don't forget your evening session later today!</div>
+  </div>
+  <div class="overlay-bottom">
+    <button class="bigbtn" id="compBackBtn">Back to plan</button>
+  </div>
+</div>
+
+<script>
+const DOW_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const REST_DAY_INDEX = 6; // Sunday
+
+const SESSION_SIZE = 6;
+
+const PUSHUP_NAMES = [
+  'Standard push-ups','Wide-grip push-ups','Diamond push-ups','Incline push-ups',
+  'Decline push-ups','Pike push-ups','Archer push-ups','Staggered-hand push-ups',
+];
+
+// index 0-3 = morning push-ups, 4-7 = evening push-ups
+const MORNING_IDX = [0,1,2,3];
+const EVENING_IDX = [4,5,6,7];
+
+const WEEK_REPS = [
+  [10, 8, 6, 12, 6, 8, '5/side', '8/side'],
+  [12, 10, 8, 14, 8, 10, '6/side', '10/side'],
+  [14, 12, 9, 15, 9, 11, '7/side', '11/side'],
+  [16, 14, 10, 16, 10, 12, '8/side', '12/side'],
+];
+
+// warm-up (jumping jacks) and cool-down (plank) durations in seconds, by week
+const WARMUP_SEC_BY_WEEK = [30, 35, 40, 45];
+const COOLDOWN_SEC_BY_WEEK = [20, 25, 30, 35];
+
+const KEY = 'pushup-weekly-state';
+let state = { startDate: null, progress: {}, sessions: {}, youtubeUrl: null };
+
+let activeSessionCtx = null;
+let testMode = false;
+
+function fmtDate(d){ return d.toISOString().slice(0,10); }
+
+function mondayOfWeek(d){
+  const day = d.getDay();
+  const diffToMonday = (day === 0) ? -6 : (1 - day);
+  const monday = new Date(d);
+  monday.setDate(d.getDate() + diffToMonday);
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+
+function programWeekNumber(){
+  if(!state.startDate) return 1;
+  const start = new Date(state.startDate + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diffDays = Math.floor((today - start) / 86400000);
+  return Math.max(1, Math.floor(diffDays / 7) + 1);
+}
+
+function repsTotal(repsVal){
+  if(typeof repsVal === 'number') return repsVal;
+  const m = String(repsVal).match(/(\d+)/);
+  const n = m ? parseInt(m[1],10) : 0;
+  return repsVal.includes('/side') ? n*2 : n;
+}
+
+// Rough estimates for an average adult, moderate-to-vigorous effort:
+// push-ups ~0.5 kcal/rep; time-based moves use a MET formula.
+function calorieForEntry(e){
+  if(e.unit === 'sec'){
+    const minutes = e.amount / 60;
+    return Math.round(e.met * 3.5 * 70 / 200 * minutes);
+  }
+  return Math.round(repsTotal(e.amount) * 0.5);
+}
+
+function buildSessionExercises(sessionType, weekIdx){
+  const idxList = sessionType === 'morning' ? MORNING_IDX : EVENING_IDX;
+  const reps = WEEK_REPS[weekIdx];
+  const list = [];
+
+  list.push({ name: 'Jumping jacks (warm-up)', amount: WARMUP_SEC_BY_WEEK[weekIdx], unit: 'sec', met: 8 });
+  idxList.forEach(i => {
+    list.push({ name: PUSHUP_NAMES[i], amount: reps[i], unit: 'reps' });
+  });
+  list.push({ name: 'Plank hold (cool-down)', amount: COOLDOWN_SEC_BY_WEEK[weekIdx], unit: 'sec', met: 4 });
+
+  list.forEach(e => { e.cal = calorieForEntry(e); });
+  return list;
+}
+
+const DEFAULT_YOUTUBE_URL = 'https://www.youtube.com/playlist?list=PLxA687tYuMWgWDaVPbg_k-1xUhZsG-eHs';
+
+function youtubeEmbedUrlFrom(input){
+  if(!input) return null;
+  input = input.trim();
+
+  const listMatch = input.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+  const listId = listMatch ? listMatch[1] : null;
+
+  let videoId = null;
+  let m = input.match(/[?&]v=([a-zA-Z0-9_-]{6,})/);
+  if(m) videoId = m[1];
+  if(!videoId){
+    m = input.match(/youtu\.be\/([a-zA-Z0-9_-]{6,})/);
+    if(m) videoId = m[1];
+  }
+  if(!videoId){
+    m = input.match(/embed\/([a-zA-Z0-9_-]{6,})/);
+    if(m && m[1] !== 'videoseries') videoId = m[1];
+  }
+
+  if(videoId){
+    return `https://www.youtube.com/embed/${videoId}` + (listId ? `?list=${listId}` : '');
+  }
+  if(listId){
+    return `https://www.youtube.com/embed/videoseries?list=${listId}`;
+  }
+  return null;
+}
+
+function renderYoutubePlayer(){
+  const wrap = document.getElementById('youtubePlayerWrap');
+  const embedUrl = youtubeEmbedUrlFrom(state.youtubeUrl);
+  if(!embedUrl){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `<iframe src="${embedUrl}" height="220" frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen loading="lazy"></iframe>`;
+}
+
+function isDayComplete(dateKey, isRest){
+  if(isRest) return !!state.progress[dateKey];
+  const s = state.sessions[dateKey];
+  return !!(s && s.morning && s.evening);
+}
+
+function render(){
+  const container = document.getElementById('days');
+  container.classList.remove('loading');
+  container.innerHTML = '';
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayKey = fmtDate(today);
+  const monday = mondayOfWeek(today);
+  const progWeek = programWeekNumber();
+  const weekIdx = Math.min(progWeek, WEEK_REPS.length) - 1;
+
+  document.getElementById('weekLabel').textContent =
+    `Week ${progWeek}${progWeek > WEEK_REPS.length ? ' (maintenance)' : ''} — ${monday.toLocaleDateString(undefined,{month:'short',day:'numeric'})} to ${new Date(monday.getTime()+6*86400000).toLocaleDateString(undefined,{month:'short',day:'numeric'})}`;
+
+  let totalDone = 0;
+  let streak = 0;
+  for(let i=0;i<60;i++){
+    const dt = new Date(today.getTime() - i*86400000);
+    const key = fmtDate(dt);
+    const isRest = (dt.getDay() === 0); // Sunday
+    const done = isDayComplete(key, isRest);
+    if(done) totalDone++;
+    if(i < 60){
+      if(done){ if(i === streak) streak++; }
+    }
+  }
+  // recompute streak properly (consecutive from today backwards)
+  streak = 0;
+  for(let i=0;i<60;i++){
+    const dt = new Date(today.getTime() - i*86400000);
+    const key = fmtDate(dt);
+    const isRest = (dt.getDay() === 0);
+    if(isDayComplete(key, isRest)) streak++;
+    else break;
+  }
+
+  document.getElementById('statDone').textContent = totalDone;
+  document.getElementById('statStreak').textContent = streak;
+  document.getElementById('statWeek').textContent = progWeek;
+
+  for(let i=0;i<7;i++){
+    const dt = new Date(monday.getTime() + i*86400000);
+    const key = fmtDate(dt);
+    const isToday = (key === todayKey);
+    const isRest = (i === REST_DAY_INDEX);
+
+    const row = document.createElement('div');
+    row.className = 'day' + (isRest ? ' rest' : '') + (isToday ? ' today' : '');
+
+    let bodyHtml;
+    if(isRest){
+      const done = !!state.progress[key];
+      bodyHtml = `<div class="rest-detail">Rest day — stretch, walk, or light mobility only.</div>`;
+      row.innerHTML = `
+        <div class="day-top">
+          <div class="dow-label">${DOW_NAMES[i]}<span class="date">${dt.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span></div>
+          <button class="stampbtn${done ? ' on' : ''}" data-restkey="${key}">${done ? '✓' : ''}</button>
+        </div>
+        ${bodyHtml}
+      `;
+    } else {
+      const s = state.sessions[key] || {morning:false, evening:false};
+      const bothDone = s.morning && s.evening;
+      let nextSession = null;
+      if(!s.morning) nextSession = 'morning';
+      else if(!s.evening) nextSession = 'evening';
+
+      const startDisabled = (!isToday && !testMode) || bothDone;
+      const startLabel = bothDone ? 'Completed' : (nextSession === 'morning' ? 'Start Morning' : 'Start Evening');
+
+      const eveningReminder = (isToday && s.morning && !s.evening)
+        ? `<div class="evening-reminder">⏰ Don't forget your evening session!</div>` : '';
+      const completeMsg = bothDone ? `<div class="daycomplete-msg">🎉 Full day complete — nice work!</div>` : '';
+
+      bodyHtml = `
+        <div class="sessions-block">
+          <div class="session-row">
+            <div class="session-label"><span class="session-check${s.morning ? ' on' : ''}">${s.morning ? '✓' : ''}</span> Morning · ${SESSION_SIZE} exercises</div>
+            <div class="session-sub"></div>
+          </div>
+          <div class="session-row">
+            <div class="session-label"><span class="session-check${s.evening ? ' on' : ''}">${s.evening ? '✓' : ''}</span> Evening · ${SESSION_SIZE} exercises</div>
+            <div class="session-sub"></div>
+          </div>
+          <div class="session-row" style="border-bottom:none;">
+            <button class="startbtn" data-daykey="${key}" ${startDisabled ? 'disabled' : ''}>${startLabel}</button>
+          </div>
+          ${eveningReminder}
+          ${completeMsg}
+        </div>
+      `;
+      row.innerHTML = `
+        <div class="day-top">
+          <div class="dow-label">${DOW_NAMES[i]}<span class="date">${dt.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span></div>
+        </div>
+        ${bodyHtml}
+      `;
+    }
+    container.appendChild(row);
+  }
+
+  container.querySelectorAll('[data-restkey]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const key = btn.getAttribute('data-restkey');
+      state.progress[key] = !state.progress[key];
+      await save();
+      render();
+    });
+  });
+
+  container.querySelectorAll('.startbtn').forEach(btn => {
+    if(btn.disabled) return;
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-daykey');
+      const s = state.sessions[key] || {morning:false, evening:false};
+      const sessionType = !s.morning ? 'morning' : 'evening';
+      startSession(key, sessionType, weekIdx);
+    });
+  });
+}
+
+// ---- Full-screen exercise player ----
+function startSession(dateKey, sessionType, weekIdx){
+  const exercises = buildSessionExercises(sessionType, weekIdx);
+  activeSessionCtx = { dateKey, sessionType, exercises, idx: 0 };
+  document.getElementById('exerciseOverlay').classList.add('active');
+  renderOverlayExercise();
+}
+
+let countdownInterval = null;
+let remainingSeconds = 0;
+
+function clearCountdown(){
+  if(countdownInterval){ clearInterval(countdownInterval); countdownInterval = null; }
+}
+
+function renderOverlayExercise(){
+  const ctx = activeSessionCtx;
+  const ex = ctx.exercises[ctx.idx];
+  clearCountdown();
+
+  document.getElementById('ovSessionTag').textContent =
+    (ctx.sessionType === 'morning' ? 'Morning session' : 'Evening session') + ` · ${ctx.idx+1} of ${ctx.exercises.length}`;
+  document.getElementById('ovExName').textContent = ex.name;
+  document.getElementById('ovCal').textContent = ex.cal;
+  document.getElementById('ovPraise').classList.remove('show');
+
+  const btn = document.getElementById('ovActionBtn');
+  btn.disabled = false;
+
+  if(ex.unit === 'sec'){
+    remainingSeconds = ex.amount;
+    document.getElementById('ovReps').textContent = remainingSeconds;
+    document.getElementById('ovRepsLabel').textContent = 'seconds left';
+    btn.textContent = `Start timer (${ex.amount}s)`;
+  } else {
+    document.getElementById('ovReps').textContent = ex.amount;
+    document.getElementById('ovRepsLabel').textContent = 'reps';
+    btn.textContent = (ctx.idx === ctx.exercises.length - 1) ? 'Mark exercise done — finish session' : 'Mark exercise done';
+  }
+
+  const progWrap = document.getElementById('ovProgress');
+  progWrap.innerHTML = '';
+  ctx.exercises.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i <= ctx.idx - 1 ? ' filled' : '') ;
+    progWrap.appendChild(d);
+  });
+}
+
+function startTimerForCurrent(){
+  const ctx = activeSessionCtx;
+  const btn = document.getElementById('ovActionBtn');
+  btn.disabled = true;
+  btn.textContent = 'Timer running…';
+
+  countdownInterval = setInterval(() => {
+    remainingSeconds--;
+    document.getElementById('ovReps').textContent = Math.max(remainingSeconds, 0);
+    if(remainingSeconds <= 0){
+      clearCountdown();
+      completeCurrentExercise();
+    }
+  }, 1000);
+}
+
+function completeCurrentExercise(){
+  const ctx = activeSessionCtx;
+  if(!ctx) return;
+
+  const dots = document.querySelectorAll('#ovProgress .dot');
+  if(dots[ctx.idx]) dots[ctx.idx].classList.add('filled');
+  document.getElementById('ovPraise').classList.add('show');
+
+  setTimeout(async () => {
+    if(ctx.idx < ctx.exercises.length - 1){
+      ctx.idx++;
+      renderOverlayExercise();
+    } else {
+      const totalCal = ctx.exercises.reduce((sum,e)=>sum+e.cal,0);
+      if(!state.sessions[ctx.dateKey]) state.sessions[ctx.dateKey] = {morning:false, evening:false};
+      state.sessions[ctx.dateKey][ctx.sessionType] = true;
+      await save();
+      document.getElementById('exerciseOverlay').classList.remove('active');
+      showCompleteScreen(ctx, totalCal);
+      activeSessionCtx = null;
+      render();
+    }
+  }, 700);
+}
+
+document.getElementById('ovActionBtn').addEventListener('click', () => {
+  const ctx = activeSessionCtx;
+  if(!ctx) return;
+  const ex = ctx.exercises[ctx.idx];
+
+  if(ex.unit === 'sec'){
+    if(countdownInterval) return; // already running
+    startTimerForCurrent();
+  } else {
+    completeCurrentExercise();
+  }
+});
+
+document.getElementById('ovClose').addEventListener('click', () => {
+  clearCountdown();
+  document.getElementById('exerciseOverlay').classList.remove('active');
+  activeSessionCtx = null;
+});
+
+function showCompleteScreen(ctx, totalCal){
+  const isMorning = ctx.sessionType === 'morning';
+  document.getElementById('compTitle').textContent = isMorning ? 'Good job! Morning done 💪' : 'Good job! Day complete 🔥';
+  document.getElementById('compSub').textContent = isMorning
+    ? 'You just finished your morning session.'
+    : 'You just finished your evening session — that\'s the full day.';
+  document.getElementById('compCal').textContent = totalCal;
+  const reminder = document.getElementById('compReminder');
+  reminder.style.display = isMorning ? 'block' : 'none';
+  document.getElementById('completeOverlay').classList.add('active');
+}
+
+document.getElementById('compBackBtn').addEventListener('click', () => {
+  document.getElementById('completeOverlay').classList.remove('active');
+});
+document.getElementById('compClose').addEventListener('click', () => {
+  document.getElementById('completeOverlay').classList.remove('active');
+});
+
+// ---- persistence ----
+async function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const loaded = JSON.parse(raw);
+      state = Object.assign({ startDate: null, progress: {}, sessions: {}, youtubeUrl: null }, loaded);
+    }
+  }catch(e){ /* no saved state yet */ }
+
+  document.getElementById('startDate').value = state.startDate || fmtDate(new Date());
+  if(!state.youtubeUrl){ state.youtubeUrl = DEFAULT_YOUTUBE_URL; }
+  document.getElementById('youtubeUrl').value = state.youtubeUrl;
+  renderYoutubePlayer();
+  render();
+}
+
+async function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch(e){ console.error('Could not save progress', e); }
+}
+
+let secretClickCount = 0;
+let secretClickTimer = null;
+document.getElementById('footerNote').addEventListener('click', () => {
+  secretClickCount++;
+  clearTimeout(secretClickTimer);
+  secretClickTimer = setTimeout(() => { secretClickCount = 0; }, 2000);
+
+  if(secretClickCount >= 5){
+    secretClickCount = 0;
+    testMode = !testMode;
+    const note = document.getElementById('footerNote');
+    const original = note.textContent;
+    note.textContent = testMode ? 'Test mode ON — every day this week is unlocked.' : 'Test mode OFF — back to normal.';
+    setTimeout(() => { note.textContent = original; }, 2000);
+    render();
+  }
+});
+
+document.getElementById('saveStart').addEventListener('click', async () => {
+  const val = document.getElementById('startDate').value;
+  if(val){ state.startDate = val; await save(); render(); }
+});
+
+document.getElementById('loadYoutube').addEventListener('click', async () => {
+  const val = document.getElementById('youtubeUrl').value;
+  const embed = youtubeEmbedUrlFrom(val);
+  if(!embed){
+    alert('That doesn\'t look like a YouTube link. Copy a video or playlist link from YouTube and paste it here.');
+    return;
+  }
+  state.youtubeUrl = val;
+  await save();
+  renderYoutubePlayer();
+});
+
+load();
+</script>
+</body>
+</html>
